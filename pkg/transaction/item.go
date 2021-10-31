@@ -7,6 +7,7 @@ type User struct {
 	Balance  float64 `json:"balance"`
 	ToUserID int     `json:"id_to,omitempty"`
 	Field    string  `json:"field,omitempty"`
+	Currency string  `json:"-"`
 }
 
 type Transaction struct {

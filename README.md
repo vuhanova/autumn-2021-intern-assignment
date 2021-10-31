@@ -92,3 +92,4 @@ http://localhost:9000/info
 `money` - сумма, 
 
 `created` - дата транзакции, либо код ошибки
+

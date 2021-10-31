@@ -13,14 +13,21 @@ import (
 	"net/http"
 )
 
+// TODO сделать пагинацию
+// TODO перевести в копейки
+// TODO convert currency
+// TODO добавить тесты
+// TODO
+// TODO
+
 func main() {
 	var name, password, dbname string
 	flag.StringVar(&name, "user", "", "The name of user")
 	flag.StringVar(&password, "password", "", "password")
 	flag.StringVar(&dbname, "db", "", "The name of database")
 	flag.Parse()
-	connStr := "user=" + name + " password=" + password + " dbname=" + dbname +
-		" sslmode=disable host=localhost port=5432"
+	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s host=%s port=%s",
+		name, password, dbname, "disable", "localhost", "5432")
 	fmt.Println(connStr)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {

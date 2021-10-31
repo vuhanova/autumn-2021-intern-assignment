@@ -15,9 +15,7 @@ type RepositoryItem struct {
 type TransactionInterface interface {
 	QueryRow(query string, args ...interface{}) *sql.Row
 	Exec(query string, args ...interface{}) (sql.Result, error)
-	Query (query string, args ...interface{}) (*sql.Rows, error)
-	/*Begin() (*sql.Tx, error)
-	Close() error*/
+	Query(query string, args ...interface{}) (*sql.Rows, error)
 }
 
 func NewRepository(db *sql.DB) *RepositoryItem {
@@ -26,7 +24,7 @@ func NewRepository(db *sql.DB) *RepositoryItem {
 	}
 }
 
-func (r *RepositoryItem) GetUsersBalance(userID int) (*User, error) {
+func (r *RepositoryItem) GetUsersBalance(userID int, currency string) (*User, error) {
 	tr := &User{
 		UserID:  userID,
 		Balance: 0,
@@ -37,6 +35,17 @@ func (r *RepositoryItem) GetUsersBalance(userID int) (*User, error) {
 		return nil, err
 	}
 
+	if currency == "" || currency == "RUB" {
+		return tr, nil
+	}
+
+	value, err := getCurrencyFromRub(currency)
+	if err != nil {
+		return nil, fmt.Errorf("didn`t convert currency: %s", currency)
+	}
+
+	tr.Balance = tr.Balance / value
+
 	return tr, nil
 }
 
@@ -45,7 +54,7 @@ func (r *RepositoryItem) CreateUsers(userID int) error {
 	balance := 0
 	err := r.DB.QueryRow("INSERT INTO users (id, balance) VALUES ($1, $2) returning id", userID, balance).Scan(&id)
 	if err != nil {
-		return fmt.Errorf("dont create such user: %d", userID)
+		return fmt.Errorf("dont create such user")
 	}
 
 	return nil
@@ -82,7 +91,7 @@ func (r *RepositoryItem) appendMoneyToUser(userID int, money float64, db Transac
 	if money < 0 {
 		return fmt.Errorf("negative amount")
 	}
-	_, err := r.GetUsersBalance(userID)
+	_, err := r.GetUsersBalance(userID, "")
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
@@ -106,7 +115,7 @@ func (r *RepositoryItem) getMoneyFromDB(userID int, money float64, db Transactio
 	if money < 0 {
 		return fmt.Errorf("negative amount")
 	}
-	tr, err := r.GetUsersBalance(userID)
+	tr, err := r.GetUsersBalance(userID, "")
 	if err != nil {
 		return err
 	}

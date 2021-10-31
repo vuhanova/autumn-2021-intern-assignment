@@ -6,4 +6,5 @@ require (
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/lib/pq v1.10.3
 	go.uber.org/zap v1.19.0 // indirect
+	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0
 )

@@ -11,7 +11,7 @@ import (
 )
 
 type ItemsRepositoryInterface interface {
-	GetUsersBalance(userID int) (*transaction.User, error)
+	GetUsersBalance(userID int, currency string) (*transaction.User, error)
 	AddMoney(userID int, money float64) error
 	WithdrawMoney(userID int, money float64) error
 	TransferMoney(fromUserID int, toUserID int, money float64) error
@@ -20,10 +20,10 @@ type ItemsRepositoryInterface interface {
 
 type ItemsHandler struct {
 	ItemRepo ItemsRepositoryInterface
-	Logger    *zap.SugaredLogger
+	Logger   *zap.SugaredLogger
 }
 
-func sendData(w http.ResponseWriter,  r *http.Request, logger *zap.SugaredLogger, data interface{}) {
+func sendData(w http.ResponseWriter, r *http.Request, logger *zap.SugaredLogger, data interface{}) {
 	dataJSON, err := json.Marshal(data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -52,10 +52,12 @@ func receiveData(r *http.Request) (*transaction.User, int, error) {
 		return nil, http.StatusBadRequest, err
 	}
 
+	//userCurr.Currency = r.FormValue("currency")
+
 	return userCurr, http.StatusOK, nil
 }
 
-func sendSuccessStatus(w http.ResponseWriter,  r *http.Request, logger *zap.SugaredLogger) {
+func sendSuccessStatus(w http.ResponseWriter, r *http.Request, logger *zap.SugaredLogger) {
 	status := make(map[string]string, 1)
 	status["status"] = "success"
 	sendData(w, r, logger, status)
@@ -95,7 +97,9 @@ func (h ItemsHandler) GetBalanceFromUser(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	tx, err := h.ItemRepo.GetUsersBalance(userCurr.UserID)
+	userCurr.Currency = r.FormValue("currency")
+
+	tx, err := h.ItemRepo.GetUsersBalance(userCurr.UserID, userCurr.Currency)
 	if err != nil {
 		sendError(w, r, h.Logger, err, http.StatusInternalServerError)
 		return
