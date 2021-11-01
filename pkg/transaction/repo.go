@@ -115,6 +115,7 @@ func (r *RepositoryItem) getMoneyFromDB(userID int, money float64, db Transactio
 	if money < 0 {
 		return fmt.Errorf("negative amount")
 	}
+
 	tr, err := r.GetUsersBalance(userID, "")
 	if err != nil {
 		return err
@@ -190,7 +191,7 @@ func (r *RepositoryItem) TransferMoney(fromUserID int, toUserID int, money float
 func writeTransaction(toID, fromID *int, money float64, db TransactionInterface) error {
 	var id int
 	created := time.Now().Format("2006-01-02 15:01")
-	fmt.Println(toID, fromID, money, created)
+
 	err := db.QueryRow("INSERT INTO transaction (to_id, from_id, money, created) VALUES ($1, $2, $3, $4) returning id",
 		toID, fromID, money, created).Scan(&id)
 	if err != nil {
