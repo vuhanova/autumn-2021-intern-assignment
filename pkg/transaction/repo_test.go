@@ -449,3 +449,309 @@ func TestWithdrawMoneyError(t *testing.T) {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 }
+
+func TestTransferMoney(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock: %s", err)
+	}
+	defer db.Close()
+	repo := NewRepository(db)
+
+	rows := sqlmock.NewRows([]string{"id"})
+	rows2 := sqlmock.NewRows([]string{"id"})
+	elemID := 1
+	elemID2 := 2
+	expect := []int{elemID2}
+	for _, item := range expect {
+		rows = rows.AddRow(item)
+	}
+
+	mock.ExpectBegin()
+	mock.
+		ExpectQuery("SELECT balance FROM users WHERE").
+		WithArgs(1).
+		WillReturnRows(rows)
+	//fmt.Println(rows)
+	mock.
+		ExpectExec("UPDATE users SET").
+		WithArgs(0.0, 1).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	rows2.AddRow(1)
+
+	mock.
+		ExpectQuery("SELECT balance FROM users WHERE").
+		WithArgs(2).
+		WillReturnRows(rows2)
+	mock.
+		ExpectExec("UPDATE users SET").
+		WithArgs(0.0, 2).
+		WillReturnResult(sqlmock.NewResult(2, 1))
+
+	rows.AddRow(1)
+	mock.
+		ExpectQuery("INSERT INTO transaction").
+		WithArgs(&elemID2, &elemID, 0.0, time.Now().Format("2006-01-02 15:01")).
+		WillReturnRows(rows)
+
+	mock.ExpectCommit()
+	//ok query
+	err = repo.TransferMoney(1, 2, 0.0)
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+		return
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+}
+
+func TestTransferMoneyError(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock: %s", err)
+	}
+	defer db.Close()
+	repo := NewRepository(db)
+
+	err = repo.TransferMoney(1, 2, -40.0)
+	if err == nil {
+		t.Errorf("expected error, got nil")
+		return
+	}
+
+	mock.ExpectBegin().WillReturnError(fmt.Errorf("error"))
+
+	err = repo.TransferMoney(1, 2, 0.0)
+	if err == nil {
+		t.Errorf("expected error, got nil")
+		return
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+
+	//error r.getMoneyFromDB
+
+	rows := sqlmock.NewRows([]string{"id"})
+	elemID2 := 2
+	rows2 := sqlmock.NewRows([]string{"id"})
+	elemID := 1
+	expect := []int{elemID2}
+	for _, item := range expect {
+		rows = rows.AddRow(item)
+	}
+
+	mock.ExpectBegin()
+	mock.
+		ExpectQuery("SELECT balance FROM users WHERE").
+		WithArgs(1).
+		WillReturnError(fmt.Errorf("error"))
+
+	err = repo.TransferMoney(1, 2, 0.0)
+	if err == nil {
+		t.Errorf("expected error, got nil")
+		return
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+
+	//error r.appendMoneyToUser
+	mock.ExpectBegin()
+	mock.
+		ExpectQuery("SELECT balance FROM users WHERE").
+		WithArgs(1).
+		WillReturnRows(rows)
+	//fmt.Println(rows)
+	mock.
+		ExpectExec("UPDATE users SET").
+		WithArgs(0.0, 1).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	mock.
+		ExpectQuery("SELECT balance FROM users WHERE").
+		WithArgs(2).
+		WillReturnError(fmt.Errorf("error"))
+
+	err = repo.TransferMoney(1, 2, 0.0)
+	if err == nil {
+		t.Errorf("expected error, got nil")
+		return
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+
+	// error writeTransaction
+	mock.ExpectBegin()
+	mock.
+		ExpectQuery("SELECT balance FROM users WHERE").
+		WithArgs(1).
+		WillReturnRows(rows)
+	//fmt.Println(rows)
+	mock.
+		ExpectExec("UPDATE users SET").
+		WithArgs(0.0, 1).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	rows2.AddRow(1)
+
+	mock.
+		ExpectQuery("SELECT balance FROM users WHERE").
+		WithArgs(2).
+		WillReturnRows(rows2)
+	mock.
+		ExpectExec("UPDATE users SET").
+		WithArgs(0.0, 2).
+		WillReturnResult(sqlmock.NewResult(2, 1))
+
+	rows.AddRow(1)
+	mock.
+		ExpectQuery("INSERT INTO transaction").
+		WithArgs(&elemID2, &elemID, 0.0, time.Now().Format("2006-01-02 15:01")).
+		WillReturnError(fmt.Errorf("error"))
+
+	err = repo.TransferMoney(1, 2, 0.0)
+	if err == nil {
+		t.Errorf("expected error, got nil")
+		return
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+}
+
+func TestGetTransaction(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock: %s", err)
+	}
+	defer db.Close()
+	repo := NewRepository(db)
+
+	rows := sqlmock.NewRows([]string{"to_id", "from_id", "money", "created"})
+	elemID := 1
+	//expect := &Transaction{&elemID, &elemID, 0.0, time.Now()}
+	rows = rows.AddRow(elemID, elemID, 0.0, time.Now() /*.Format("2006-01-02 15:01")*/)
+
+	//for _ = range expect {
+	mock.
+		ExpectQuery("SELECT to_id, from_id, money, created FROM transaction where").
+		WithArgs(elemID).
+		WillReturnRows(rows)
+	//}
+
+	_, err = repo.GetTransaction(elemID, "")
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+		return
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+
+	// date
+	rows.AddRow(elemID+1, elemID+1, 0.0, time.Now())
+	mock.
+		ExpectQuery("SELECT to_id, from_id, money, created FROM transaction where").
+		WithArgs(elemID).
+		WillReturnRows(rows)
+	//}
+
+	_, err = repo.GetTransaction(elemID, "date")
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+		return
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+
+	// money
+
+	mock.
+		ExpectQuery("SELECT to_id, from_id, money, created FROM transaction where").
+		WithArgs(elemID).
+		WillReturnRows(rows)
+	//}
+
+	_, err = repo.GetTransaction(elemID, "money")
+	if err != nil {
+		t.Errorf("unexpected err: %s", err)
+		return
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+}
+
+func TestGetTransactionError(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("cant create mock: %s", err)
+	}
+	defer db.Close()
+	elemID := 1
+	repo := NewRepository(db)
+
+	//select error
+	mock.
+		ExpectQuery("SELECT to_id, from_id, money, created FROM transaction where").
+		WithArgs(1).
+		WillReturnError(fmt.Errorf("error"))
+
+	_, err = repo.GetTransaction(1, "")
+	if err == nil {
+		t.Errorf("expected error, got nil")
+		return
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+
+	// orderBy error
+	rows := sqlmock.NewRows([]string{"to_id", "from_id", "money", "created"})
+	rows = rows.AddRow(elemID, elemID, 0.0, time.Now())
+	mock.
+		ExpectQuery("SELECT to_id, from_id, money, created FROM transaction where").
+		WithArgs(1).
+		WillReturnRows(rows)
+		//WillReturnError(fmt.Errorf("error"))
+		//WillReturnError(fmt.Errorf("error"))
+
+	_, err = repo.GetTransaction(1, "create43d")
+	if err == nil {
+		t.Errorf("expected error, got nil")
+		return
+	}
+	/*if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}*/
+
+	/*// scan error
+	rows := sqlmock.NewRows([]string{"to_id", "from_id", "money", "created"})
+	elemID := 1
+
+	//rows = rows.AddRow(elemID, elemID, 0.0, time.Now())
+	rows = rows.RowError(0, fmt.Errorf("errror"))
+	mock.
+		ExpectQuery("SELECT to_id, from_id, money, created FROM transaction where").
+		WithArgs(1).
+		WillReturnRows(rows)
+
+	_, err = repo.GetTransaction(elemID, "")
+	if err == nil {
+		t.Errorf("expected error, got nil")
+		return
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+		return
+	}*/
+}

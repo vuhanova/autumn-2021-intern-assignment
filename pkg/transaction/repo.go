@@ -91,6 +91,7 @@ func (r *RepositoryItem) appendMoneyToUser(userID int, money float64, db Transac
 	if money < 0 {
 		return fmt.Errorf("negative amount")
 	}
+
 	_, err := r.GetUsersBalance(userID, "")
 	if err != nil && err != sql.ErrNoRows {
 		return err
@@ -218,16 +219,22 @@ func (r *RepositoryItem) GetTransaction(userID int, orderBy string) ([]*Transact
 		info = append(info, curr)
 	}
 
+	if orderBy == "" {
+		return info, nil
+	}
+
 	lowOrderBy := strings.ToLower(orderBy)
 	if lowOrderBy == "date" {
 		sort.Slice(info[:], func(i, j int) bool {
 			return info[i].Created.Before(info[j].Created)
 		})
+		return info, nil
 	} else if lowOrderBy == "money" {
 		sort.Slice(info[:], func(i, j int) bool {
 			return info[i].Money < info[j].Money
 		})
+		return info, nil
 	}
 
-	return info, nil
+	return nil, fmt.Errorf("bad orderBy value")
 }
