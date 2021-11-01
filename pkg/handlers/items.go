@@ -23,6 +23,9 @@ type ItemsHandler struct {
 	Logger   *zap.SugaredLogger
 }
 
+//находять в папке pkg/handlers
+//mockgen -source=items.go -destination=items_mock.go -package=handlers ItemRepositoryInterface
+
 func sendData(w http.ResponseWriter, r *http.Request, logger *zap.SugaredLogger, data interface{}) {
 	dataJSON, err := json.Marshal(data)
 	if err != nil {
