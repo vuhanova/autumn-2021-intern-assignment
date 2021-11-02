@@ -350,8 +350,8 @@ func TestListTransaction(t *testing.T) {
 	body, _ := ioutil.ReadAll(resp.Body)
 
 	if !bytes.Contains(body, []byte("success")) {
-		//t.Errorf("no text found")
-		//return
+		// t.Errorf("no text found")
+		// return
 	}
 
 	// marshaling error

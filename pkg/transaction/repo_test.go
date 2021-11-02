@@ -16,7 +16,7 @@ func TestGetUsersBalance(t *testing.T) {
 	}
 	defer db.Close()
 
-	//good query
+	// good query
 	elemID := 1
 	rows := sqlmock.NewRows([]string{"balance"})
 	expect := []*User{&User{
@@ -41,7 +41,7 @@ func TestGetUsersBalance(t *testing.T) {
 		return
 	}
 
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return
 	}
@@ -70,7 +70,7 @@ func TestGetUsersBalanceErrors(t *testing.T) {
 	repo := NewRepository(db)
 	_, err = repo.GetUsersBalance(elemID, "")
 
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return
 	}
@@ -87,7 +87,7 @@ func TestCreateUsers(t *testing.T) {
 	}
 	defer db.Close()
 
-	//good query
+	// good query
 	elemID := 1
 	rows := sqlmock.NewRows([]string{"id"})
 	expect := []int{elemID}
@@ -109,7 +109,7 @@ func TestCreateUsers(t *testing.T) {
 		return
 	}
 
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return
 	}
@@ -122,7 +122,7 @@ func TestCreateUsers(t *testing.T) {
 		WillReturnError(fmt.Errorf("dont create such user"))
 
 	err = repo.CreateUsers(elemID)
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return
 	}
@@ -164,7 +164,7 @@ func TestAddMoney(t *testing.T) {
 		WillReturnRows(rows)
 
 	mock.ExpectCommit()
-	//ok query
+	// ok query
 	err = repo.AddMoney(1, 55.3)
 
 	if err != nil {
@@ -172,7 +172,7 @@ func TestAddMoney(t *testing.T) {
 		return
 	}
 
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 
@@ -199,7 +199,7 @@ func TestAddMoneyError(t *testing.T) {
 		t.Errorf("expected error, got nil")
 		return
 	}
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 
@@ -213,10 +213,10 @@ func TestAddMoneyError(t *testing.T) {
 		t.Errorf("expected error, got nil")
 		return
 	}
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
-	//sql.NoRows
+	// sql.NoRows
 
 	mock.ExpectBegin()
 	mock.
@@ -232,11 +232,11 @@ func TestAddMoneyError(t *testing.T) {
 		t.Errorf("expected error, got nil")
 		return
 	}
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 
-	//error update
+	// error update
 	rows := sqlmock.NewRows([]string{"id"})
 	elemID := 1
 	expect := []int{elemID}
@@ -260,11 +260,11 @@ func TestAddMoneyError(t *testing.T) {
 		t.Errorf("expected error, got nil")
 		return
 	}
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 
-	//error write transaction
+	// error write transaction
 	mock.ExpectBegin()
 	mock.
 		ExpectQuery("SELECT balance FROM users WHERE").
@@ -286,7 +286,7 @@ func TestAddMoneyError(t *testing.T) {
 		t.Errorf("expected error, got nil")
 		return
 	}
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 }
@@ -305,7 +305,7 @@ func TestWithdrawMoney(t *testing.T) {
 	for _, item := range expect {
 		rows = rows.AddRow(item)
 	}
-	//err = repo.AddMoney(1, 1000)
+	// err = repo.AddMoney(1, 1000)
 	mock.ExpectBegin()
 	mock.
 		ExpectQuery("SELECT balance FROM users WHERE").
@@ -323,7 +323,7 @@ func TestWithdrawMoney(t *testing.T) {
 		WillReturnRows(rows)
 
 	mock.ExpectCommit()
-	//ok query
+	// ok query
 	err = repo.WithdrawMoney(1, 0.0)
 
 	if err != nil {
@@ -331,7 +331,7 @@ func TestWithdrawMoney(t *testing.T) {
 		return
 	}
 
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 }
@@ -358,7 +358,7 @@ func TestWithdrawMoneyError(t *testing.T) {
 		rows = rows.AddRow(item)
 	}
 
-	//not enough money
+	// not enough money
 	mock.ExpectBegin()
 	mock.
 		ExpectQuery("SELECT balance FROM users WHERE").
@@ -379,11 +379,11 @@ func TestWithdrawMoneyError(t *testing.T) {
 		t.Errorf("expected error, got nil")
 		return
 	}
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 
-	// selec
+	//  error select
 	mock.ExpectBegin()
 	mock.
 		ExpectQuery("SELECT balance FROM users WHERE").
@@ -393,11 +393,11 @@ func TestWithdrawMoneyError(t *testing.T) {
 		t.Errorf("expected error, got nil")
 		return
 	}
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 
-	//error update
+	// error update
 
 	for _, item := range expect {
 		rows = rows.AddRow(item)
@@ -419,11 +419,11 @@ func TestWithdrawMoneyError(t *testing.T) {
 		t.Errorf("expected error, got nil")
 		return
 	}
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 
-	//error write transaction
+	// error write transaction
 	mock.ExpectBegin()
 	mock.
 		ExpectQuery("SELECT balance FROM users WHERE").
@@ -445,7 +445,7 @@ func TestWithdrawMoneyError(t *testing.T) {
 		t.Errorf("expected error, got nil")
 		return
 	}
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 }
@@ -472,7 +472,7 @@ func TestTransferMoney(t *testing.T) {
 		ExpectQuery("SELECT balance FROM users WHERE").
 		WithArgs(1).
 		WillReturnRows(rows)
-	//fmt.Println(rows)
+
 	mock.
 		ExpectExec("UPDATE users SET").
 		WithArgs(0.0, 1).
@@ -496,14 +496,14 @@ func TestTransferMoney(t *testing.T) {
 		WillReturnRows(rows)
 
 	mock.ExpectCommit()
-	//ok query
+	// ok query
 	err = repo.TransferMoney(1, 2, 0.0)
 	if err != nil {
 		t.Errorf("unexpected err: %s", err)
 		return
 	}
 
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 }
@@ -529,11 +529,11 @@ func TestTransferMoneyError(t *testing.T) {
 		t.Errorf("expected error, got nil")
 		return
 	}
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 
-	//error r.getMoneyFromDB
+	// error r.getMoneyFromDB
 
 	rows := sqlmock.NewRows([]string{"id"})
 	elemID2 := 2
@@ -555,17 +555,17 @@ func TestTransferMoneyError(t *testing.T) {
 		t.Errorf("expected error, got nil")
 		return
 	}
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 
-	//error r.appendMoneyToUser
+	// error r.appendMoneyToUser
 	mock.ExpectBegin()
 	mock.
 		ExpectQuery("SELECT balance FROM users WHERE").
 		WithArgs(1).
 		WillReturnRows(rows)
-	//fmt.Println(rows)
+
 	mock.
 		ExpectExec("UPDATE users SET").
 		WithArgs(0.0, 1).
@@ -581,7 +581,7 @@ func TestTransferMoneyError(t *testing.T) {
 		t.Errorf("expected error, got nil")
 		return
 	}
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 
@@ -591,7 +591,7 @@ func TestTransferMoneyError(t *testing.T) {
 		ExpectQuery("SELECT balance FROM users WHERE").
 		WithArgs(1).
 		WillReturnRows(rows)
-	//fmt.Println(rows)
+
 	mock.
 		ExpectExec("UPDATE users SET").
 		WithArgs(0.0, 1).
@@ -619,7 +619,7 @@ func TestTransferMoneyError(t *testing.T) {
 		t.Errorf("expected error, got nil")
 		return
 	}
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 }
@@ -634,10 +634,10 @@ func TestGetTransaction(t *testing.T) {
 
 	rows := sqlmock.NewRows([]string{"to_id", "from_id", "money", "created"})
 	elemID := 1
-	//expect := &Transaction{&elemID, &elemID, 0.0, time.Now()}
+	// expect := &Transaction{&elemID, &elemID, 0.0, time.Now()}
 	rows = rows.AddRow(elemID, elemID, 0.0, time.Now() /*.Format("2006-01-02 15:01")*/)
 
-	//for _ = range expect {
+	// for _ = range expect {
 	mock.
 		ExpectQuery("SELECT to_id, from_id, money, created FROM transaction where").
 		WithArgs(elemID).
@@ -650,7 +650,7 @@ func TestGetTransaction(t *testing.T) {
 		return
 	}
 
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 
@@ -660,7 +660,7 @@ func TestGetTransaction(t *testing.T) {
 		ExpectQuery("SELECT to_id, from_id, money, created FROM transaction where").
 		WithArgs(elemID).
 		WillReturnRows(rows)
-	//}
+	// }
 
 	_, err = repo.GetTransaction(elemID, "date")
 	if err != nil {
@@ -668,7 +668,7 @@ func TestGetTransaction(t *testing.T) {
 		return
 	}
 
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 
@@ -678,7 +678,7 @@ func TestGetTransaction(t *testing.T) {
 		ExpectQuery("SELECT to_id, from_id, money, created FROM transaction where").
 		WithArgs(elemID).
 		WillReturnRows(rows)
-	//}
+	// }
 
 	_, err = repo.GetTransaction(elemID, "money")
 	if err != nil {
@@ -686,7 +686,7 @@ func TestGetTransaction(t *testing.T) {
 		return
 	}
 
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 }
@@ -700,7 +700,7 @@ func TestGetTransactionError(t *testing.T) {
 	elemID := 1
 	repo := NewRepository(db)
 
-	//select error
+	// select error
 	mock.
 		ExpectQuery("SELECT to_id, from_id, money, created FROM transaction where").
 		WithArgs(1).
@@ -711,7 +711,7 @@ func TestGetTransactionError(t *testing.T) {
 		t.Errorf("expected error, got nil")
 		return
 	}
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 
@@ -722,23 +722,21 @@ func TestGetTransactionError(t *testing.T) {
 		ExpectQuery("SELECT to_id, from_id, money, created FROM transaction where").
 		WithArgs(1).
 		WillReturnRows(rows)
-		//WillReturnError(fmt.Errorf("error"))
-		//WillReturnError(fmt.Errorf("error"))
 
 	_, err = repo.GetTransaction(1, "create43d")
 	if err == nil {
 		t.Errorf("expected error, got nil")
 		return
 	}
-	/*if err := mock.ExpectationsWereMet(); err != nil {
+	/*if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}*/
 
-	/*// scan error
+	/* // scan error
 	rows := sqlmock.NewRows([]string{"to_id", "from_id", "money", "created"})
 	elemID := 1
 
-	//rows = rows.AddRow(elemID, elemID, 0.0, time.Now())
+	// rows = rows.AddRow(elemID, elemID, 0.0, time.Now())
 	rows = rows.RowError(0, fmt.Errorf("errror"))
 	mock.
 		ExpectQuery("SELECT to_id, from_id, money, created FROM transaction where").
@@ -750,7 +748,7 @@ func TestGetTransactionError(t *testing.T) {
 		t.Errorf("expected error, got nil")
 		return
 	}
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return
 	}*/

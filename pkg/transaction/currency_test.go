@@ -13,7 +13,7 @@ func TestCurrency(t *testing.T) {
 	}
 	defer db.Close()
 
-	//good query
+	// good query
 	elemID := 1
 	rows := sqlmock.NewRows([]string{"balance"})
 	expect := []*User{&User{
@@ -40,7 +40,7 @@ func TestCurrency(t *testing.T) {
 
 	fmt.Println(tr.Balance)
 
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err = mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return
 	}
@@ -60,7 +60,7 @@ func TestCurrencyErrors(t *testing.T) {
 	}
 	defer db.Close()
 
-	//good query
+	// good query
 	elemID := 1
 	rows := sqlmock.NewRows([]string{"balance"})
 	expect := []*User{&User{
