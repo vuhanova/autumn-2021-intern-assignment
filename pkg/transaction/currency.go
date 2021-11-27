@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 )
@@ -40,12 +41,13 @@ func getCurrencyFromRub(needCurrency string) (float64, error) {
 	}
 
 	base := curr.Base
+	log.Println()
 	need, ok := curr.Rates[base+needCurrency]
 	if !ok {
 		return 0, fmt.Errorf("no currency")
 	}
 	fmt.Println(need, ok)
 	value := curr.Rates[base+"RUB"] / need
-
+	value = float64(int(value*100)) / 100
 	return value, nil
 }

@@ -4,7 +4,18 @@ version: '3'
 # docker rm $(docker ps -a -q) && docker volume prune -f
 
 services:
-  postgres:
+  app:
+    build: ./
+    command: ./wait-for-postgres.sh db ./main
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+    environment:
+      - DB_PASSWORD=qwerty123
+      - PG_USER=postgres
+      - PG_DB=postgres
+  db:
     image: postgres:latest
     restart: always
     environment:

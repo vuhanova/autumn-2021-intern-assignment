@@ -25,7 +25,7 @@ go run cmd/app/main.go -user="username" -password="password" -db="database"
 ```curl --header "Content-Type: application/json" \
 --request POST \
 --data '{"id": 1, "balance": 200}' \
-http://localhost:9000/balance/add
+http://localhost:8000/balance/add
 ```
 `Ответ:` сообщение об успехе, либо код ошибки
 
@@ -36,7 +36,7 @@ http://localhost:9000/balance/add
 ```curl --header "Content-Type: application/json" \
 --request POST \
 --data '{"id": 1, "balance": 200}' \
-http://localhost:9000/balance/reduce
+http://localhost:8000/balance/reduce
 ```
 `Ответ:` сообщение об успехе, либо код ошибки
 
@@ -49,7 +49,7 @@ http://localhost:9000/balance/reduce
 ```curl --header "Content-Type: application/json" \
 --request POST \
 --data '{"id": 1, "balance": 200, "id_to":3}' \
-http://localhost:9000/balance/transfer
+http://localhost:8000/balance/transfer
 ```
 `Ответ:` сообщение об успехе, либо код ошибки
 
@@ -60,7 +60,7 @@ http://localhost:9000/balance/transfer
 ```curl --header "Content-Type: application/json" \
 --request POST \
 --data '{"id": 1}' \
-http://localhost:9000/user
+http://localhost:8000/user
 ```
 `Ответ:` возвращает баланс пользователя в рублях, либо код ошибки
 
@@ -71,14 +71,14 @@ http://localhost:9000/user
 ```curl --header "Content-Type: application/json" \
 --request POST \
 --data '{"id": 1}' \
-http://localhost:9000/info
+http://localhost:8000/info
 ```
 
 *сортировка по сумме*
 ```curl --header "Content-Type: application/json" \
 --request POST \
 --data '{"id": 1, "field":"date"}' \
-http://localhost:9000/info
+http://localhost:8000/info
 ```
 
 *сортировка по дате*
@@ -96,6 +96,6 @@ http://localhost:9000/info
 
 
 
-curl --header "Content-Type: application/json" --request POST --data "{\"id\": 1, \"balance\": 200}" http://localhost:9000/balance/add
+curl --header "Content-Type: application/json" --request POST --data "{\"id\": 1, \"balance\": 200}" http://localhost:8000/balance/add
 
-curl --header "Content-Type: application/json" --request POST --data '{"id": 1}' http://localhost:9000/info
+curl --header "Content-Type: application/json" --request POST --data '{"id": 1}' http://localhost:8000/info

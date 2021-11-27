@@ -16,10 +16,6 @@ import (
 	"time"
 )
 
-// TODO add test for sendData and receiveData
-// TODO rewrite IncMoney and DecMoney
-// TODO add TestCase for all
-
 func TestGetBalanceFromUser(t *testing.T) {
 	// мы передаём t сюда, это надо, чтобы получить корректное сообщение если тесты не пройдут
 	ctrl := gomock.NewController(t)
