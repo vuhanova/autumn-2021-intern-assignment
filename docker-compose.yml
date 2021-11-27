@@ -1,0 +1,17 @@
+version: '3'
+
+# docker-compose up
+# docker rm $(docker ps -a -q) && docker volume prune -f
+
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: "postgres"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "qwerty123"
+    ports:
+      - '5432:5432'
+    volumes:
+      - './script/:/docker-entrypoint-initdb.d/'

@@ -16,6 +16,10 @@ import (
 	"time"
 )
 
+// TODO add test for sendData and receiveData
+// TODO rewrite IncMoney and DecMoney
+// TODO add TestCase for all
+
 func TestGetBalanceFromUser(t *testing.T) {
 	// мы передаём t сюда, это надо, чтобы получить корректное сообщение если тесты не пройдут
 	ctrl := gomock.NewController(t)
@@ -383,4 +387,8 @@ func TestListTransaction(t *testing.T) {
 		t.Errorf("expected resp status 500, got %d", resp.StatusCode)
 		return
 	}
+}
+
+func TestSendData(t *testing.T) {
+
 }

@@ -18,7 +18,7 @@ import (
 // TODO convert currency
 // TODO добавить тесты
 // TODO
-// TODO
+// TODO add description: pagination, currency and test
 
 func main() {
 	var name, password, dbname string

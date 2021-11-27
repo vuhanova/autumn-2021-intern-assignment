@@ -93,3 +93,9 @@ http://localhost:9000/info
 
 `created` - дата транзакции, либо код ошибки
 
+
+
+
+curl --header "Content-Type: application/json" --request POST --data "{\"id\": 1, \"balance\": 200}" http://localhost:9000/balance/add
+
+curl --header "Content-Type: application/json" --request POST --data '{"id": 1}' http://localhost:9000/info

@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+// TODO rewrite AddMoney and WithdrawMoney
+
 func TestGetUsersBalance(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
