@@ -6,17 +6,11 @@
 
 **Запуск**
 
-На сервере PostgreSQL создать бд и таблицы в этой бд, скрипт по созданию нужных таблиц находится в файле `script.sql`
+
 
 ```
-go run cmd/app/main.go -user="username" -password="password" -db="database"
+    docker-compose up
 ```
-
-`username` - логин на сервере PostgreSQL, 
-
-`password` - пароль этого пользователя, 
-
-`database` - имя базы данных
 
 **Метод начисления средств на баланс:**
 
@@ -62,6 +56,9 @@ http://localhost:8000/balance/transfer
 --data '{"id": 1}' \
 http://localhost:8000/user
 ```
+
+Добавлен к методу получения баланса доп. параметр. Пример: ?currency=USD
+
 `Ответ:` возвращает баланс пользователя в рублях, либо код ошибки
 
 **метод получения списка транзакций:**
@@ -91,11 +88,5 @@ http://localhost:8000/info
 
 `money` - сумма, 
 
-`created` - дата транзакции, либо код ошибки
+`created` - дата транзакции
 
-
-
-
-curl --header "Content-Type: application/json" --request POST --data "{\"id\": 1, \"balance\": 200}" http://localhost:8000/balance/add
-
-curl --header "Content-Type: application/json" --request POST --data '{"id": 1}' http://localhost:8000/info

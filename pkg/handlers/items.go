@@ -32,7 +32,7 @@ func sendData(w http.ResponseWriter, r *http.Request, logger *zap.SugaredLogger,
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
+	//nolint:errcheck
 	w.Write(dataJSON)
 	logger.Infow("New request",
 		"method", r.Method,
@@ -54,8 +54,6 @@ func receiveData(r *http.Request) (*transaction.User, int, error) {
 	if err != nil {
 		return nil, http.StatusBadRequest, err
 	}
-
-	//userCurr.Currency = r.FormValue("currency")
 
 	return userCurr, http.StatusOK, nil
 }

@@ -70,7 +70,7 @@ func TestGetUsersBalanceErrors(t *testing.T) {
 	repo := NewRepository(db)
 	_, err = repo.GetUsersBalance(elemID, "")
 
-	if err = mock.ExpectationsWereMet(); err != nil {
+	if err2 := mock.ExpectationsWereMet(); err2 != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return
 	}
@@ -122,7 +122,7 @@ func TestCreateUsers(t *testing.T) {
 		WillReturnError(fmt.Errorf("dont create such user"))
 
 	err = repo.CreateUsers(elemID)
-	if err = mock.ExpectationsWereMet(); err != nil {
+	if err2 := mock.ExpectationsWereMet(); err2 != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 		return
 	}

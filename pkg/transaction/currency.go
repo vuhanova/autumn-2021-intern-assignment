@@ -46,7 +46,7 @@ func getCurrencyFromRub(needCurrency string) (float64, error) {
 	if !ok {
 		return 0, fmt.Errorf("no currency")
 	}
-	fmt.Println(need, ok)
+
 	value := curr.Rates[base+"RUB"] / need
 	value = float64(int(value*100)) / 100
 	return value, nil

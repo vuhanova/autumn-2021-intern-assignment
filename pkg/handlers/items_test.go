@@ -30,9 +30,9 @@ func TestGetBalanceFromUser(t *testing.T) {
 		Logger:   zap.NewNop().Sugar(), // не пишет логи
 	}
 
-	elemId := 17
+	elemID := 17
 	resultItem := &transaction.User{
-		UserID:  elemId,
+		UserID:  elemID,
 		Balance: 50.0,
 	}
 
@@ -43,13 +43,17 @@ func TestGetBalanceFromUser(t *testing.T) {
 	}
 	bodyReader := strings.NewReader(string(b))
 
-	st.EXPECT().GetUsersBalance(elemId, "").Return(resultItem, nil)
+	st.EXPECT().GetUsersBalance(elemID, "").Return(resultItem, nil)
 
 	req := httptest.NewRequest("POST", "/user", bodyReader)
 	w := httptest.NewRecorder()
 	service.GetBalanceFromUser(w, req)
 
 	resp := w.Result()
+	//nolint:errcheck
+	defer resp.Body.Close()
+
+	//nolint:errcheck
 	body, _ := ioutil.ReadAll(resp.Body)
 
 	us := transaction.User{}
@@ -68,9 +72,15 @@ func TestGetBalanceFromUser(t *testing.T) {
 	service.GetBalanceFromUser(w, req)
 
 	resp = w.Result()
-	body, _ = ioutil.ReadAll(resp.Body)
+	//nolint:errcheck
+	defer resp.Body.Close()
+	//nolint:errcheck
+	ioutil.ReadAll(resp.Body)
 
 	resp = w.Result()
+	//nolint:errcheck
+	defer resp.Body.Close()
+
 	if resp.StatusCode != http.StatusBadRequest {
 		t.Errorf("expected resp status 400, got %d", resp.StatusCode)
 		return
@@ -78,19 +88,23 @@ func TestGetBalanceFromUser(t *testing.T) {
 
 	// result error
 
-	st.EXPECT().GetUsersBalance(elemId, "").Return(resultItem, fmt.Errorf("bad result"))
+	st.EXPECT().GetUsersBalance(elemID, "").Return(resultItem, fmt.Errorf("bad result"))
 	bodyReader = strings.NewReader(string(b))
 	req = httptest.NewRequest("POST", "/create", bodyReader)
 	w = httptest.NewRecorder()
 	service.GetBalanceFromUser(w, req)
 
 	resp = w.Result()
+	//nolint:errcheck
+	defer resp.Body.Close()
+
 	if resp.StatusCode != 500 {
 		t.Errorf("expected resp status 500, got %d", resp.StatusCode)
 		return
 	}
 }
 
+//nolint:dupl
 func TestIncreaseBalance(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
@@ -104,9 +118,9 @@ func TestIncreaseBalance(t *testing.T) {
 		Logger:   zap.NewNop().Sugar(), // не пишет логи
 	}
 
-	elemId := 1
+	elemID := 1
 	resultItem := &transaction.User{
-		UserID:  elemId,
+		UserID:  elemID,
 		Balance: 50.0,
 	}
 
@@ -124,6 +138,10 @@ func TestIncreaseBalance(t *testing.T) {
 	service.IncreaseBalance(w, req)
 
 	resp := w.Result()
+	//nolint:errcheck
+	defer resp.Body.Close()
+
+	//nolint:errcheck
 	body, _ := ioutil.ReadAll(resp.Body)
 
 	if !bytes.Contains(body, []byte("success")) {
@@ -139,9 +157,14 @@ func TestIncreaseBalance(t *testing.T) {
 	service.IncreaseBalance(w, req)
 
 	resp = w.Result()
-	body, _ = ioutil.ReadAll(resp.Body)
+	//nolint:errcheck
+	defer resp.Body.Close()
+	//nolint:errcheck
+	ioutil.ReadAll(resp.Body)
 
 	resp = w.Result()
+	//nolint:errcheck
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusBadRequest {
 		t.Errorf("expected resp status 400, got %d", resp.StatusCode)
 		return
@@ -156,12 +179,16 @@ func TestIncreaseBalance(t *testing.T) {
 	service.IncreaseBalance(w, req)
 
 	resp = w.Result()
+	//nolint:errcheck
+	defer resp.Body.Close()
+
 	if resp.StatusCode != 500 {
 		t.Errorf("expected resp status 500, got %d", resp.StatusCode)
 		return
 	}
 }
 
+//nolint:dupl
 func TestDecreaseBalance(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
@@ -175,9 +202,9 @@ func TestDecreaseBalance(t *testing.T) {
 		Logger:   zap.NewNop().Sugar(), // не пишет логи
 	}
 
-	elemId := 1
+	elemID := 1
 	resultItem := &transaction.User{
-		UserID:  elemId,
+		UserID:  elemID,
 		Balance: 50.0,
 	}
 
@@ -195,6 +222,10 @@ func TestDecreaseBalance(t *testing.T) {
 	service.DecreaseBalance(w, req)
 
 	resp := w.Result()
+	//nolint:errcheck
+	defer resp.Body.Close()
+
+	//nolint:errcheck
 	body, _ := ioutil.ReadAll(resp.Body)
 
 	if !bytes.Contains(body, []byte("success")) {
@@ -210,9 +241,16 @@ func TestDecreaseBalance(t *testing.T) {
 	service.DecreaseBalance(w, req)
 
 	resp = w.Result()
-	body, _ = ioutil.ReadAll(resp.Body)
+	//nolint:errcheck
+	defer resp.Body.Close()
+
+	//nolint:errcheck
+	ioutil.ReadAll(resp.Body)
 
 	resp = w.Result()
+	//nolint:errcheck
+	defer resp.Body.Close()
+
 	if resp.StatusCode != http.StatusBadRequest {
 		t.Errorf("expected resp status 400, got %d", resp.StatusCode)
 		return
@@ -227,6 +265,9 @@ func TestDecreaseBalance(t *testing.T) {
 	service.DecreaseBalance(w, req)
 
 	resp = w.Result()
+	//nolint:errcheck
+	defer resp.Body.Close()
+
 	if resp.StatusCode != 500 {
 		t.Errorf("expected resp status 500, got %d", resp.StatusCode)
 		return
@@ -246,9 +287,9 @@ func TestTransferBalance(t *testing.T) {
 		Logger:   zap.NewNop().Sugar(), // не пишет логи
 	}
 
-	elemId := 1
+	elemID := 1
 	resultItem := &transaction.User{
-		UserID:   elemId,
+		UserID:   elemID,
 		ToUserID: 2,
 		Balance:  50.0,
 	}
@@ -267,6 +308,10 @@ func TestTransferBalance(t *testing.T) {
 	service.TransferBalance(w, req)
 
 	resp := w.Result()
+	//nolint:errcheck
+	defer resp.Body.Close()
+
+	//nolint:errcheck
 	body, _ := ioutil.ReadAll(resp.Body)
 
 	if !bytes.Contains(body, []byte("success")) {
@@ -282,9 +327,16 @@ func TestTransferBalance(t *testing.T) {
 	service.TransferBalance(w, req)
 
 	resp = w.Result()
-	body, _ = ioutil.ReadAll(resp.Body)
+	//nolint:errcheck
+	defer resp.Body.Close()
+
+	//nolint:errcheck
+	ioutil.ReadAll(resp.Body)
 
 	resp = w.Result()
+	//nolint:errcheck
+	defer resp.Body.Close()
+
 	if resp.StatusCode != http.StatusBadRequest {
 		t.Errorf("expected resp status 400, got %d", resp.StatusCode)
 		return
@@ -299,6 +351,9 @@ func TestTransferBalance(t *testing.T) {
 	service.TransferBalance(w, req)
 
 	resp = w.Result()
+	//nolint:errcheck
+	defer resp.Body.Close()
+
 	if resp.StatusCode != 500 {
 		t.Errorf("expected resp status 500, got %d", resp.StatusCode)
 		return
@@ -318,16 +373,16 @@ func TestListTransaction(t *testing.T) {
 		Logger:   zap.NewNop().Sugar(), // не пишет логи
 	}
 
-	elemId := 1
+	elemID := 1
 	sourceItem := &transaction.User{
-		UserID: elemId,
+		UserID: elemID,
 		Field:  "",
 	}
 
 	resultItem := []*transaction.Transaction{
 		{
 			ToID:    nil,
-			FromID:  &elemId,
+			FromID:  &elemID,
 			Money:   50,
 			Created: time.Now(),
 		},
@@ -340,13 +395,17 @@ func TestListTransaction(t *testing.T) {
 	}
 	bodyReader := strings.NewReader(string(b))
 
-	st.EXPECT().GetTransaction(elemId, "").Return(resultItem, nil)
+	st.EXPECT().GetTransaction(elemID, "").Return(resultItem, nil)
 
 	req := httptest.NewRequest("POST", "/info", bodyReader)
 	w := httptest.NewRecorder()
 	service.ListTransaction(w, req)
 
 	resp := w.Result()
+	//nolint:errcheck
+	defer resp.Body.Close()
+
+	//nolint:errcheck
 	body, _ := ioutil.ReadAll(resp.Body)
 
 	if !bytes.Contains(body, []byte("success")) {
@@ -362,9 +421,16 @@ func TestListTransaction(t *testing.T) {
 	service.ListTransaction(w, req)
 
 	resp = w.Result()
-	body, _ = ioutil.ReadAll(resp.Body)
+	//nolint:errcheck
+	defer resp.Body.Close()
+
+	//nolint:errcheck
+	ioutil.ReadAll(resp.Body)
 
 	resp = w.Result()
+	//nolint:errcheck
+	defer resp.Body.Close()
+
 	if resp.StatusCode != http.StatusBadRequest {
 		t.Errorf("expected resp status 400, got %d", resp.StatusCode)
 		return
@@ -372,13 +438,16 @@ func TestListTransaction(t *testing.T) {
 
 	// result error
 
-	st.EXPECT().GetTransaction(elemId, "").Return(nil, fmt.Errorf("bad result"))
+	st.EXPECT().GetTransaction(elemID, "").Return(nil, fmt.Errorf("bad result"))
 	bodyReader = strings.NewReader(string(b))
 	req = httptest.NewRequest("POST", "/info", bodyReader)
 	w = httptest.NewRecorder()
 	service.ListTransaction(w, req)
 
 	resp = w.Result()
+	//nolint:errcheck
+	defer resp.Body.Close()
+
 	if resp.StatusCode != 500 {
 		t.Errorf("expected resp status 500, got %d", resp.StatusCode)
 		return

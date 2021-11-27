@@ -44,7 +44,7 @@ func (r *RepositoryItem) GetUsersBalance(userID int, currency string) (*User, er
 		return nil, fmt.Errorf("didn`t convert currency: %s", currency)
 	}
 
-	tr.Balance = tr.Balance / value
+	tr.Balance /= value
 
 	return tr, nil
 }
@@ -72,16 +72,19 @@ func (r *RepositoryItem) AddMoney(userID int, money float64) error {
 
 	err = r.appendMoneyToUser(userID, money, tx)
 	if err != nil {
+		//nolint:errcheck
 		tx.Rollback()
 		return err
 	}
 
 	err = writeTransaction(&userID, nil, money, tx)
 	if err != nil {
+		//nolint:errcheck
 		tx.Rollback()
 		return err
 	}
 
+	//nolint:errcheck
 	tx.Commit()
 
 	return nil
@@ -128,7 +131,7 @@ func (r *RepositoryItem) getMoneyFromDB(userID int, money float64, db Transactio
 
 	_, err = db.Exec("UPDATE users SET balance = balance - $1 WHERE id = $2", money, userID)
 	if err != nil {
-		return err //failed to withdraw money
+		return err // failed to withdraw money
 	}
 
 	return nil
@@ -142,16 +145,19 @@ func (r *RepositoryItem) WithdrawMoney(userID int, money float64) error {
 
 	err = r.getMoneyFromDB(userID, money, tx)
 	if err != nil {
+		//nolint:errcheck
 		tx.Rollback()
 		return err
 	}
 
 	err = writeTransaction(nil, &userID, -money, r.DB)
 	if err != nil {
+		//nolint:errcheck
 		tx.Rollback()
 		return err
 	}
 
+	//nolint:errcheck
 	tx.Commit()
 
 	return nil
@@ -168,22 +174,26 @@ func (r *RepositoryItem) TransferMoney(fromUserID int, toUserID int, money float
 
 	err = r.getMoneyFromDB(fromUserID, money, tx)
 	if err != nil {
+		//nolint:errcheck
 		tx.Rollback()
 		return err
 	}
 
 	err = r.appendMoneyToUser(toUserID, money, tx)
 	if err != nil {
+		//nolint:errcheck
 		tx.Rollback()
 		return err
 	}
 
 	err = writeTransaction(&toUserID, &fromUserID, money, tx)
 	if err != nil {
+		//nolint:errcheck
 		tx.Rollback()
 		return err
 	}
 
+	//nolint:errcheck
 	tx.Commit()
 
 	return nil
@@ -225,12 +235,12 @@ func (r *RepositoryItem) GetTransaction(userID int, orderBy string) ([]*Transact
 
 	lowOrderBy := strings.ToLower(orderBy)
 	if lowOrderBy == "date" {
-		sort.Slice(info[:], func(i, j int) bool {
+		sort.Slice(info, func(i, j int) bool {
 			return info[i].Created.Before(info[j].Created)
 		})
 		return info, nil
 	} else if lowOrderBy == "money" {
-		sort.Slice(info[:], func(i, j int) bool {
+		sort.Slice(info, func(i, j int) bool {
 			return info[i].Money < info[j].Money
 		})
 		return info, nil

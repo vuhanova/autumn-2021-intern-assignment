@@ -14,12 +14,6 @@ import (
 )
 
 func main() {
-	/*
-		- DB_PASSWORD=qwerty123
-		      - PG_USER=postgres
-		      - PG_DB=postgres
-	*/
-	fmt.Println("here2")
 
 	name := os.Getenv("PG_USER")
 	password := os.Getenv("DB_PASSWORD")
@@ -34,7 +28,12 @@ func main() {
 		return
 	}
 
-	zapLogger, _ := zap.NewProduction()
+	zapLogger, err := zap.NewProduction()
+	if err != nil {
+		log.Println("logger error")
+		return
+	}
+	//nolint:errcheck
 	defer zapLogger.Sync() // flushes buffer, if any
 	logger := zapLogger.Sugar()
 
@@ -51,6 +50,7 @@ func main() {
 
 	err = http.ListenAndServe(addr, r)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return
 	}
 }
